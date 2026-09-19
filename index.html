@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Gestão - Cadastro e Visualização de Dados">
+    <title>Sistema de Gestão | Cadastro e Visualização</title>
+
+    <style>
+        /* ===== Reset e base ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --cor-primaria: #1a5f7a;
+            --cor-secundaria: #159895;
+            --cor-destaque: #57c5b6;
+            --cor-fundo: #f8fafc;
+            --cor-texto: #1e293b;
+            --cor-borda: #e2e8f0;
+            --sombra: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --raio: 8px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--cor-texto);
+            background-color: var(--cor-fundo);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        /* ===== Cabeçalho ===== */
+        .cabecalho {
+            background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
+            color: white;
+            padding: 1.75rem 0;
+            text-align: center;
+        }
+
+        .cabecalho h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+        }
+
+        .subtitulo {
+            margin-top: 0.35rem;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* ===== Menu ===== */
+        .menu {
+            background-color: #0f4c5c;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 0;
+        }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--raio);
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu a:hover,
+        .menu a:focus {
+            background-color: var(--cor-destaque);
+            color: #0f4c5c;
+            outline: none;
+        }
+
+        /* ===== Conteúdo ===== */
+        .conteudo {
+            flex: 1;
+            padding: 2.5rem 0;
+        }
+
+        .secao-cadastro,
+        .secao-visualizacao {
+            background: white;
+            border-radius: var(--raio);
+            box-shadow: var(--sombra);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--cor-primaria);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--cor-destaque);
+        }
+
+        /* ===== Formulário ===== */
+        .instrucoes {
+            margin-bottom: 1.5rem;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .campo {
+            margin-bottom: 1.25rem;
+        }
+
+        .campo label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .campo input,
+        .campo select,
+        .campo textarea {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .campo input:focus,
+        .campo select:focus,
+        .campo textarea:focus {
+            outline: none;
+            border-color: var(--cor-secundaria);
+            box-shadow: 0 0 0 3px rgba(21, 152, 149, 0.2);
+        }
+
+        .botoes {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .botao {
+            padding: 0.75rem 1.75rem;
+            border: none;
+            border-radius: var(--raio);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .botao:hover {
+            transform: translateY(-1px);
+        }
+
+        .botao-primario {
+            background-color: var(--cor-primaria);
+            color: white;
+        }
+
+        .botao-primario:hover {
+            background-color: #144d63;
+            box-shadow: 0 4px 12px rgba(26, 95, 122, 0.3);
+        }
+
+        .botao-secundario {
+            background-color: #e2e8f0;
+            color: var(--cor-texto);
+        }
+
+        .botao-secundario:hover {
+            background-color: #cbd5e1;
+        }
+
+        /* ===== Tabela ===== */
+        .tabela-container {
+            overflow-x: auto;
+        }
+
+        .tabela-dados {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .tabela-dados caption {
+            caption-side: top;
+            text-align: left;
+            padding-bottom: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .tabela-dados th,
+        .tabela-dados td {
+            padding: 0.9rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tabela-dados thead {
+            background-color: var(--cor-primaria);
+            color: white;
+        }
+
+        .tabela-dados tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status.disponivel {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status.baixo {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* ===== Rodapé ===== */
+        .rodape {
+            background-color: #0f4c5c;
+            color: white;
+            text-align: center;
+            padding: 1.25rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* ===== Responsividade ===== */
+        @media (max-width: 768px) {
+            .cabecalho h1 {
+                font-size: 1.5rem;
+            }
+
+            .menu ul {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.25rem;
+            }
+
+            .menu a {
+                display: block;
+                text-align: center;
+            }
+
+            .secao-cadastro,
+            .secao-visualizacao {
+                padding: 1.5rem;
+            }
+
+            .botoes {
+                flex-direction: column;
+            }
+
+            .botao {
+                width: 100%;
+            }
+
+            .tabela-dados th,
+            .tabela-dados td {
+                padding: 0.7rem 0.6rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="cabecalho">
+        <div class="container">
+            <h1>Sistema de Gestão</h1>
+            <p class="subtitulo">Cadastro e Visualização de Dados</p>
+        </div>
+    </header>
+
+    <nav class="menu" aria-label="Menu principal">
+        <div class="container">
+            <ul>
+                <li><a href="#cadastro">Cadastro</a></li>
+                <li><a href="#visualizacao">Visualização</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="conteudo">
+        <div class="container">
+
+            <!-- Seção de Cadastro -->
+            <section id="cadastro" class="secao-cadastro" aria-labelledby="titulo-cadastro">
+                <h2 id="titulo-cadastro">Cadastro de Item</h2>
+
+                <form action="#" method="post" class="formulario" aria-describedby="instrucoes-form">
+                    <p id="instrucoes-form" class="instrucoes">
+                        Preencha os campos abaixo para cadastrar um novo item no sistema.
+                    </p>
+
+                    <div class="campo">
+                        <label for="nome">Nome do Item *</label>
+                        <input type="text" id="nome" name="nome" required 
+                               placeholder="Ex: Notebook Dell" autocomplete="off">
+                    </div>
+
+                    <div class="campo">
+                        <label for="categoria">Categoria *</label>
+                        <select id="categoria" name="categoria" required>
+                            <option value="">Selecione...</option>
+                            <option value="eletronicos">Eletrônicos</option>
+                            <option value="mobiliario">Mobiliário</option>
+                            <option value="escritorio">Material de Escritório</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="quantidade">Quantidade *</label>
+                        <input type="number" id="quantidade" name="quantidade" 
+                               min="1" value="1" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="descricao">Descrição</label>
+                        <textarea id="descricao" name="descricao" rows="4" 
+                                  placeholder="Informações adicionais sobre o item"></textarea>
+                    </div>
+
+                    <div class="botoes">
+                        <button type="submit" class="botao botao-primario">Cadastrar</button>
+                        <button type="reset" class="botao botao-secundario">Limpar</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Seção de Visualização -->
+            <section id="visualizacao" class="secao-visualizacao" aria-labelledby="titulo-visualizacao">
+                <h2 id="titulo-visualizacao">Itens Cadastrados</h2>
+
+                <div class="tabela-container">
+                    <table class="tabela-dados">
+                        <caption>Lista de itens cadastrados no sistema</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Categoria</th>
+                                <th scope="col">Quantidade</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>001</td>
+                                <td>Notebook Dell Inspiron</td>
+                                <td>Eletrônicos</td>
+                                <td>12</td>
+                                <td><span class="status disponivel">Disponível</span></td>
+                            </tr>
+                            <tr>
+                                <td>002</td>
+                                <td>Cadeira Ergonômica</td>
+                                <td>Mobiliário</td>
+                                <td>8</td>
+                                <td><span class="status disponivel">Disponível</span></td>
+                            </tr>
+                            <tr>
+                                <td>003</td>
+                                <td>Monitor 24"</td>
+                                <td>Eletrônicos</td>
+                                <td>5</td>
+                                <td><span class="status baixo">Estoque baixo</span></td>
+                            </tr>
+                            <tr>
+                                <td>004</td>
+                                <td>Canetas azul (cx)</td>
+                                <td>Material de Escritório</td>
+                                <td>30</td>
+                                <td><span class="status disponivel">Disponível</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>&copy; 2026 - Sistema de Gestão | Front-end semântico e responsivo</p>
+        </div>
+    </footer>
+</body>
+</html>
