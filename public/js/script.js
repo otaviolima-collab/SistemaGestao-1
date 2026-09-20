@@ -208,7 +208,8 @@ form.addEventListener('submit', async e => {
         btnSalvar.disabled = false;
     }
 });
-    // ===== EDITAR (preenche o formulário) =====
+
+// ===== EDITAR (preenche o formulário) =====
     window.editarItem = async function(id) {
         try {
             const res = await fetch(`${API}/${id}`);
