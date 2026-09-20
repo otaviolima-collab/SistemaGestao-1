@@ -146,58 +146,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ===== CREATE / UPDATE =====
-    form.addEventListener('submit', async e => {
-        e.preventDefault();
-        limparFeedback();
+// ===== CREATE / UPDATE =====
+form.addEventListener('submit', async e => {
+    e.preventDefault();
+    limparFeedback();
 
-        if (!validar()) {
-            mostrarFeedback('Corrija os campos destacados.', 'erro');
-            return;
-        }
+    if (!validar()) {
+        mostrarFeedback('Corrija os campos destacados.', 'erro');
+        return;
+    }
 
-        const dados = {
-            nome: campos.nome.value.trim(),
-            categoria: campos.categoria.value,
-            quantidade: Number(campos.quantidade.value),
-            descricao: campos.descricao.value.trim() || null,
-            cep: campos.cep.value,
-            logradouro: campos.logradouro.value,
-            bairro: campos.bairro.value,
-            cidade: campos.cidade.value,
-            uf: campos.uf.value
-        };
+    const dados = {
+        nome: campos.nome.value.trim(),
+        categoria: campos.categoria.value,
+        quantidade: Number(campos.quantidade.value),
+        descricao: campos.descricao.value.trim() || null,
+        cep: campos.cep.value,
+        logradouro: campos.logradouro.value,
+        bairro: campos.bairro.value,
+        cidade: campos.cidade.value,
+        uf: campos.uf.value
+    };
 
-        const id = itemId.value;
-        const metodo = id ? 'PUT' : 'POST';
-        const url = id ? `${API}/${id}` : API;
+    const id = itemId.value;
+    const metodo = id ? 'PUT' : 'POST';
+    const url = id ? `${API}/${id}` : API;
 
+    try {
+        btnSalvar.disabled = true;
+
+        const res = await fetch(url, {
+            method: metodo,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        // Tenta ler a resposta mesmo se der erro
+        let resposta;
         try {
-            btnSalvar.disabled = true;
-            const res = await fetch(url, {
-                method: metodo,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
-            });
-
-            if (!res.ok) {
-                const erro = await res.json();
-                throw new Error(erro.erro || 'Erro no servidor');
-            }
-
-            mostrarFeedback(id ? 'Item atualizado com sucesso!' : 'Item cadastrado com sucesso!', 'sucesso');
-            form.reset();
-            itemId.value = '';
-            btnSalvar.textContent = 'Cadastrar';
-            btnCancelar.style.display = 'none';
-            carregarItens();
-        } catch (erro) {
-            mostrarFeedback(erro.message, 'erro');
-        } finally {
-            btnSalvar.disabled = false;
+            resposta = await res.json();
+        } catch {
+            resposta = { erro: 'Resposta inválida do servidor' };
         }
-    });
 
+        if (!res.ok) {
+            // Mostra a mensagem real do servidor
+            throw new Error(resposta.erro || `Erro HTTP ${res.status}`);
+        }
+
+        mostrarFeedback(id ? 'Item atualizado com sucesso!' : 'Item cadastrado com sucesso!', 'sucesso');
+        form.reset();
+        itemId.value = '';
+        btnSalvar.textContent = 'Cadastrar';
+        btnCancelar.style.display = 'none';
+        carregarItens();
+
+    } catch (erro) {
+        console.error('Erro completo:', erro);
+        mostrarFeedback(erro.message, 'erro');   // agora mostra a mensagem real
+    } finally {
+        btnSalvar.disabled = false;
+    }
+});
     // ===== EDITAR (preenche o formulário) =====
     window.editarItem = async function(id) {
         try {
