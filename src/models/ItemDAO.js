@@ -16,8 +16,17 @@ function garantirBanco() {
 
 function lerDados() {
   garantirBanco();
-  const conteudo = fs.readFileSync(DB_PATH, 'utf8');
-  return JSON.parse(conteudo);
+  try {
+    const conteudo = fs.readFileSync(DB_PATH, 'utf8').trim();
+    if (!conteudo) {
+      return [];
+    }
+    return JSON.parse(conteudo);
+  } catch (erro) {
+    console.error('Erro ao ler o banco, reiniciando arquivo...', erro.message);
+    fs.writeFileSync(DB_PATH, '[]', 'utf8');
+    return [];
+  }
 }
 
 function salvarDados(dados) {
