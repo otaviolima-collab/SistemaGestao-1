@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": 1,
+    "nome": "Administrador",
+    "email": "admin@sistema.com",
+    "senha": "$2b$10$jiFdhBmNSW48C7gsGILDye23L1m18UkWyVrZ3qqAxrl7SH.gBggFS",
+    "perfil": "admin"
+  },
+  {
+    "id": 2,
+    "nome": "Usuário Comum",
+    "email": "usuario@sistema.com",
+    "senha": "$2b$10$ATG5zsWrQVQXm.1WWg12zOkll6wF8Ne53xY6wUEaEoLZmntN0i.Qu",
+    "perfil": "usuario"
+  }
+]

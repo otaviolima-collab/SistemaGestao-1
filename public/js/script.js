@@ -1,5 +1,42 @@
 const API = 'http://localhost:3000/api/itens';
 
+// Verifica se o usuário está logado
+async function verificarAutenticacao() {
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) {
+      window.location.href = '/login.html';
+      return null;
+    }
+    const dados = await res.json();
+    return dados.usuario;
+  } catch {
+    window.location.href = '/login.html';
+    return null;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Primeiro verifica se está logado
+  const usuarioLogado = await verificarAutenticacao();
+    if (!usuarioLogado) return;
+      // Botão de Logout
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = '/login.html';
+    });
+  }
+});
+
+  // Se chegou aqui, o usuário está autenticado
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form-cadastro');
     const itemId = document.getElementById('item-id');
