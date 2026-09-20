@@ -1,53 +1,96 @@
-const db = require('../config/db');
+const fs = require('fs');
+const path = require('path');
+
+const DB_PATH = path.join(__dirname, '../../data/itens.json');
+
+// Garante que a pasta e o arquivo existam
+function garantirBanco() {
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  if (!fs.existsSync(DB_PATH)) {
+    fs.writeFileSync(DB_PATH, '[]', 'utf8');
+  }
+}
+
+function lerDados() {
+  garantirBanco();
+  const conteudo = fs.readFileSync(DB_PATH, 'utf8');
+  return JSON.parse(conteudo);
+}
+
+function salvarDados(dados) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(dados, null, 2), 'utf8');
+}
 
 class ItemDAO {
 
-  // CREATE
-  criar(item) {
-    const stmt = db.prepare(`
-      INSERT INTO itens 
-        (nome, categoria, quantidade, descricao, cep, logradouro, bairro, cidade, uf)
-      VALUES 
-        (@nome, @categoria, @quantidade, @descricao, @cep, @logradouro, @bairro, @cidade, @uf)
-    `);
-    const info = stmt.run(item);
-    return this.buscarPorId(info.lastInsertRowid);
-  }
-
-  // READ - todos
   listarTodos() {
-    return db.prepare('SELECT * FROM itens ORDER BY id DESC').all();
+    return lerDados();
   }
 
-  // READ - por ID
   buscarPorId(id) {
-    return db.prepare('SELECT * FROM itens WHERE id = ?').get(id);
+    const itens = lerDados();
+    return itens.find(item => item.id === Number(id)) || null;
   }
 
-  // UPDATE
+  criar(item) {
+    const itens = lerDados();
+    const novoId = itens.length > 0 ? Math.max(...itens.map(i => i.id)) + 1 : 1;
+
+    const novoItem = {
+      id: novoId,
+      nome: item.nome,
+      categoria: item.categoria,
+      quantidade: item.quantidade,
+      descricao: item.descricao || null,
+      cep: item.cep || null,
+      logradouro: item.logradouro || null,
+      bairro: item.bairro || null,
+      cidade: item.cidade || null,
+      uf: item.uf || null,
+      criado_em: new Date().toISOString()
+    };
+
+    itens.push(novoItem);
+    salvarDados(itens);
+    return novoItem;
+  }
+
   atualizar(id, item) {
-    const stmt = db.prepare(`
-      UPDATE itens SET
-        nome = @nome,
-        categoria = @categoria,
-        quantidade = @quantidade,
-        descricao = @descricao,
-        cep = @cep,
-        logradouro = @logradouro,
-        bairro = @bairro,
-        cidade = @cidade,
-        uf = @uf
-      WHERE id = @id
-    `);
-    stmt.run({ ...item, id });
-    return this.buscarPorId(id);
+    const itens = lerDados();
+    const index = itens.findIndex(i => i.id === Number(id));
+
+    if (index === -1) return null;
+
+    itens[index] = {
+      ...itens[index],
+      nome: item.nome,
+      categoria: item.categoria,
+      quantidade: item.quantidade,
+      descricao: item.descricao || null,
+      cep: item.cep || null,
+      logradouro: item.logradouro || null,
+      bairro: item.bairro || null,
+      cidade: item.cidade || null,
+      uf: item.uf || null
+    };
+
+    salvarDados(itens);
+    return itens[index];
   }
 
-  // DELETE
   excluir(id) {
-    const stmt = db.prepare('DELETE FROM itens WHERE id = ?');
-    const info = stmt.run(id);
-    return info.changes > 0;
+    const itens = lerDados();
+    const novosItens = itens.filter(i => i.id !== Number(id));
+
+    if (novosItens.length === itens.length) {
+      return false; // não encontrou
+    }
+
+    salvarDados(novosItens);
+    return true;
   }
 }
 
