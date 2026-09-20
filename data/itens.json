@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": 1,
+    "nome": "Notebook Dell",
+    "categoria": "eletronicos",
+    "quantidade": 1,
+    "descricao": "notebookkk",
+    "cep": "06690-000",
+    "logradouro": "Alameda Cristóvão Diniz",
+    "bairro": "Condomínio Nova São Paulo",
+    "cidade": "Itapevi",
+    "uf": "SP",
+    "criado_em": "2026-09-20T02:33:28.714Z"
+  }
+]
